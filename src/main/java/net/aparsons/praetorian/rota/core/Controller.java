@@ -1,7 +1,5 @@
 package net.aparsons.praetorian.rota.core;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.aparsons.praetorian.rota.http.API;
 import net.aparsons.praetorian.rota.http.Client;
 import net.aparsons.praetorian.rota.model.Board;
@@ -15,61 +13,54 @@ public class Controller implements Runnable {
     public Controller() {
         client = new Client();
     }
-    
+        
+    @Override
     public void run() {
         StopWatch watch = new StopWatch();
 
+        Response resp;
         Board board;
-        
+
         watch.start();
-        Response resp = client.request(API.start());
-        
-        while (resp.data.hash != null) {
-            
-            // Update board
+        // Reset until I get to play first
+        do {
+            resp = client.request(API.start());
             board = new Board(resp.data.board);
+        } while(board.getComputerPieceCount() == 1);
+       
+        // Place initial pieces
+        resp = client.request(API.place(1));
+        print(resp.data.board);
+        
+        resp = client.request(API.place(5));
+        print(resp.data.board);
+        
+        resp = client.request(API.place(6));
+        print(resp.data.board);
+        
+        // Loop in a circle
+        while (resp.data.hash == null) {
+            System.out.println("Session Time: " + watch.toString());
             
-            // Print to screen
-            System.out.println(board);
-            System.out.println("Player Wins: " + resp.data.player_wins);
-            System.out.println("Session Time: " + watch.toSplitString());
+            resp = client.request(API.move(5, 8));
+            print(resp.data.board);
             
-            // Action
-            if (board.getPlayerPieceCount() >= 3) {
-                move(board);
-            } else {
-                place(board);
-            }
- 
-            // Sleep
-            try {
-                Thread.sleep(5000L); // 5 Seconds
-            } catch (InterruptedException ie) {
-                Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, ie.getMessage(), ie);
-            }
-            
-            // Status
-            resp = client.request(API.status());
-            
-            // Reset
-            if (resp.data.computer_wins > 0) {
-                watch.split();
-                resp = client.request(API.start());
-            }
-            
+            resp = client.request(API.move(8, 7));
+            print(resp.data.board);
+
+            resp = client.request(API.move(7, 5));
+            print(resp.data.board);
         }
         watch.stop();
         
         System.out.println("Took: " + watch.toString());
         System.out.println("Hash: " + resp.data.hash);
     }
-    
-    private void place(Board board) {
-        
+
+    private void print(String board) {
+        if (board != null) {
+            System.out.println(new Board(board));
+        }
     }
     
-    private void move(Board board) {
-        
-    }
-        
 }

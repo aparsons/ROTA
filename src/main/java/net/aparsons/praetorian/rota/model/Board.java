@@ -48,9 +48,9 @@ public class Board {
     public String toString() {
         
         StringBuilder sb = new StringBuilder();
-        sb.append(board[0]).append(" ").append(board[1]).append(" ").append(board[2]).append("\r\n");
-        sb.append(board[3]).append(" ").append(board[4]).append(" ").append(board[5]).append("\r\n");
-        sb.append(board[6]).append(" ").append(board[7]).append(" ").append(board[8]);
+        sb.append("[").append(board[0]).append("][").append(board[1]).append("][").append(board[2]).append("]").append("\r\n");
+        sb.append("[").append(board[3]).append("][").append(board[4]).append("][").append(board[5]).append("]").append("\r\n");
+        sb.append("[").append(board[6]).append("][").append(board[7]).append("][").append(board[8]).append("]");
         
         return sb.toString();
     }
